@@ -1,148 +1,121 @@
 
 import SwiftUI
-import Combine
+
+// MARK: - HOME SCREEN
 
 struct ContentView: View {
 
-    @State private var score = 0
-    @State private var bestScore = 0
-    @State private var timeLeft = 10
-    @State private var isPlaying = false
-    @State private var gameOver = false
-
-    let timer = Timer.publish(
-        every: 1,
-        on: .main,
-        in: .common
-    ).autoconnect() 
-
     var body: some View {
 
-        ZStack {
-            Color.black.ignoresSafeArea()
+        NavigationStack {
 
-            VStack(spacing: 30) {
+            ZStack {
 
-                Text("TAP FRENZY")
-                    .font(.largeTitle.bold())
-                    .foregroundColor(.cyan)
+                Color.black.ignoresSafeArea()
 
-                Text("Tap as fast as you can!")
-                    .foregroundColor(.gray)
-
-                HStack {
-                    VStack {
-                        Text("SCORE")
-                            .foregroundColor(.gray)
-
-                        Text("\(score)")
-                            .font(.largeTitle.bold())
-                            .foregroundColor(.white)
-                    }
+                VStack(spacing: 30) {
 
                     Spacer()
 
-                    VStack {
-                        Text("BEST")
-                            .foregroundColor(.gray)
+                    Image(systemName: "gamecontroller.fill")
+                        .font(.system(size: 65))
+                        .foregroundColor(.cyan)
 
-                        Text("\(bestScore)")
-                            .font(.largeTitle.bold())
-                            .foregroundColor(.yellow)
-                    }
-                }
-                .padding()
-                .background(Color.gray.opacity(0.2))
-                .cornerRadius(15)
-
-                Text("TIME: \(timeLeft)s")
-                    .font(.title.bold())
-                    .foregroundColor(.cyan)
-
-                Spacer()
-
-                if gameOver {
-
-                    Text("GAME OVER!")
+                    Text("MY GAME")
                         .font(.largeTitle.bold())
-                        .foregroundColor(.red)
-
-                    Text("Your Score: \(score)")
-                        .font(.title2)
                         .foregroundColor(.white)
 
-                    Button("PLAY AGAIN") {
-                        resetGame()
-                    }
-                    .font(.title2.bold())
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(15)
+                    Text("Choose your game mode")
+                        .font(.title3)
+                        .foregroundColor(.gray)
 
-                } else {
+                    Spacer()
 
-                    Button {
-                        if !isPlaying {
-                            isPlaying = true
-                        }
-
-                        score += 1
-
-                        if score > bestScore {
-                            bestScore = score
-                        }
-
+                    NavigationLink {
+                        TapFrenzyView()
                     } label: {
 
-                        VStack(spacing: 15) {
-
-                            Image(systemName: "hand.tap.fill")
-                                .font(.system(size: 45))
-
-                            Text("TAP ME")
-                                .font(.largeTitle.bold())
-                        }
-                        .foregroundColor(.white)
-                        .frame(width: 200, height: 200)
-                        .background(Color.blue)
-                        .clipShape(Circle())
+                        modeButton(
+                            title: "TAP FRENZY",
+                            subtitle: "Tap as fast as you can",
+                            symbol: "hand.tap.fill",
+                            tint: .cyan
+                        )
                     }
                     .buttonStyle(.plain)
 
+                    NavigationLink {
+                        LightItUpView()
+                    } label: {
+
+                        modeButton(
+                            title: "LIGHT IT UP",
+                            subtitle: "Find and tap the glowing cards",
+                            symbol: "bolt.fill",
+                            tint: .orange
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+
+                    Text("Select a mode to play")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
                 }
-
-                Spacer()
-
-                Text("Best Score: \(bestScore)")
-                    .foregroundColor(.yellow)
+                .padding()
             }
-            .padding()
+            .toolbar(.hidden, for: .navigationBar)
         }
-        .onReceive(timer) { _ in
-
-            if isPlaying && !gameOver {
-
-                if timeLeft > 0 {
-                    timeLeft -= 1
-                }
-
-                if timeLeft == 0 {
-                    gameOver = true
-                    isPlaying = false
-                }
-            }
-        }
+        .preferredColorScheme(.dark)
     }
 
-    func resetGame() {
-        score = 0
-        timeLeft = 10
-        isPlaying = false
-        gameOver = false
+    // HOME BUTTON DESIGN
+
+    private func modeButton(
+        title: String,
+        subtitle: String,
+        symbol: String,
+        tint: Color
+    ) -> some View {
+
+        HStack(spacing: 16) {
+
+            Image(systemName: symbol)
+                .font(.system(size: 28, weight: .bold))
+                .foregroundColor(tint)
+                .frame(width: 60, height: 60)
+                .background(tint.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+
+            VStack(alignment: .leading, spacing: 6) {
+
+                Text(title)
+                    .font(.headline.bold())
+                    .foregroundColor(.white)
+
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .foregroundColor(.gray)
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity)
+        .background(Color.white.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .overlay {
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(tint.opacity(0.4), lineWidth: 1)
+        }
     }
 }
+
+// MARK: - PREVIEW
 
 #Preview {
     ContentView()
